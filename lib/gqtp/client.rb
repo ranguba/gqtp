@@ -66,7 +66,9 @@ module GQTP
       case connection
       when :thread
         require "gqtp/connection/#{connection}"
-        GQTP::Connection::const_get(connection.to_s.capitalize).new(@options)
+        module_name = connection.to_s.capitalize
+        connection_module = GQTP::Connection::const_get(module_name)
+        connection_module::Client.new(@options)
       else
         raise "unknown connection: <#{connection.inspect}>"
       end
