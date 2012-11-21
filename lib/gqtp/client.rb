@@ -60,6 +60,10 @@ module GQTP
       end
     end
 
+    def close
+      @connection.close
+    end
+
     private
     def create_connection
       connection = @options[:connection] || :thread
