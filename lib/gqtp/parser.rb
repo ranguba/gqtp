@@ -16,10 +16,71 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
+require "gqtp/error"
 require "gqtp/header"
 
 module GQTP
+  class ParseError < Error
+  end
+
   class Parser
+    class << self
+      def parse(data, &block)
+        if block_given?
+          event_parse(data, &block)
+        else
+          stand_alone_parse(data)
+        end
+      end
+
+      private
+      def event_parse(data)
+        parser = new
+
+        parser.on_header do |header|
+          yield(:on_header, header)
+        end
+        parser.on_body do |chunk|
+          yield(:on_body, chunk)
+        end
+        parser.on_complete do
+          yield(:on_complete)
+        end
+
+        consume_data(parser, data)
+      end
+
+      def stand_alone_parse(data)
+        received_header = nil
+        body = "".force_encoding("ASCII-8BIT")
+
+        parser = new
+        parser.on_header do |header|
+          received_header = header
+        end
+        parser.on_body do |chunk|
+          body << chunk
+        end
+
+        consume_data(parser, data)
+        unless parser.completed?
+          raise ParseError, "not completed: <#{data.inspect}>"
+        end
+
+        [received_header, body]
+      end
+
+      def consume_data(parser, data)
+        if data.respond_to?(:each)
+          data.each do |chunk|
+            parser << chunk
+          end
+        else
+          parser << data
+        end
+      end
+    end
+
     def initialize
       @data = "".force_encoding("ASCII-8BIT")
       @header = nil
@@ -90,7 +151,8 @@ module GQTP
     end
 
     def parse_body(chunk)
-      raise "already completed." if @completed
+      raise ParseError, "already completed: <#{chunk.inspect}>" if @completed
+
       @body_size += chunk.bytesize
       on_body(chunk)
       if @body_size >= @header.size

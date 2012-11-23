@@ -85,4 +85,33 @@ class ParserTest < Test::Unit::TestCase
     @parser << data[-1..-1]
     assert_true(@parser.completed?)
   end
+
+  class ParseTest < self
+    def test_event
+      body = "status"
+      header = GQTP::Header.new
+      header.size = body.bytesize
+
+      events = []
+      GQTP::Parser.parse([header.pack, body]) do |event_type, *arguments|
+        events << [event_type, arguments]
+      end
+      assert_equal([
+                     [:on_header,   [header]],
+                     [:on_body,     [body]],
+                     [:on_complete, []],
+                   ],
+                   events)
+    end
+
+    def test_stand_alone
+      body = "status"
+      header = GQTP::Header.new
+      header.size = body.bytesize
+
+      parsed_header, parsed_body = GQTP::Parser.parse([header.pack, body])
+      assert_equal([       header,        body],
+                   [parsed_header, parsed_body])
+    end
+  end
 end
