@@ -53,6 +53,7 @@ module GQTP
       def stand_alone_parse(data)
         received_header = nil
         body = "".force_encoding("ASCII-8BIT")
+        completed = false
 
         parser = new
         parser.on_header do |header|
@@ -61,11 +62,12 @@ module GQTP
         parser.on_body do |chunk|
           body << chunk
         end
+        parser.on_complete do
+          completed = true
+        end
 
         consume_data(parser, data)
-        unless parser.completed?
-          raise ParseError, "not completed: <#{data.inspect}>"
-        end
+        raise ParseError, "not completed: <#{data.inspect}>" unless completed
 
         [received_header, body]
       end
@@ -83,10 +85,7 @@ module GQTP
 
     attr_reader :header
     def initialize
-      @data = "".force_encoding("ASCII-8BIT")
-      @header = nil
-      @body_size = 0
-      @completed = false
+      reset
       initialize_hooks
     end
 
@@ -97,10 +96,6 @@ module GQTP
         parse_body(chunk)
       end
       self
-    end
-
-    def completed?
-      @completed
     end
 
     # @overload on_header(header)
@@ -134,6 +129,12 @@ module GQTP
     end
 
     private
+    def reset
+      @data = "".force_encoding("ASCII-8BIT")
+      @header = nil
+      @body_size = 0
+    end
+
     def initialize_hooks
       @on_header_hook = nil
       @on_body_hook = nil
@@ -146,19 +147,25 @@ module GQTP
       @header = Header.parse(@data)
       on_header(@header)
       if @data.bytesize > Header.size
-        parse_body(@data[Header.size, -1])
+        parse_body(@data[Header.size..-1])
       end
       @data = nil
     end
 
     def parse_body(chunk)
-      raise ParseError, "already completed: <#{chunk.inspect}>" if @completed
-
       @body_size += chunk.bytesize
-      on_body(chunk)
-      if @body_size >= @header.size
-        @completed = true
+      if @body_size < @header.size
+        on_body(chunk)
+      elsif @body_size == @header.size
+        on_body(chunk)
         on_complete
+        reset
+      else
+        rest_body_size = @header.size - (@body_size - chunk.bytesize)
+        on_body(chunk[0, rest_body_size])
+        on_complete
+        reset
+        self << chunk[rest_body_size..-1]
       end
     end
   end

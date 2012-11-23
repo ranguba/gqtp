@@ -74,31 +74,17 @@ class ParserTest < Test::Unit::TestCase
     assert_true(completed)
   end
 
-  def test_data_after_complete
+  def test_parse_twice
     body = "status"
     header = GQTP::Header.new
     header.size = body.bytesize
 
-    @parser << header.pack << body
-    assert_true(@parser.completed?)
-
-    garbage = "X"
-    message = "already completed: <#{garbage.inspect}>"
-    assert_raise(GQTP::ParseError.new(message)) do
-      @parser << garbage
+    n_completed = 0
+    @parser.on_complete do
+      n_completed += 1
     end
-  end
-
-  def test_complete?
-    data = "status"
-    header = GQTP::Header.new
-    header.size = data.bytesize
-
-    @parser << header.pack << data[0..-2]
-    assert_false(@parser.completed?)
-
-    @parser << data[-1..-1]
-    assert_true(@parser.completed?)
+    @parser << ((header.pack + body) * 2)
+    assert_equal(2, n_completed)
   end
 
   class ParseTest < self
