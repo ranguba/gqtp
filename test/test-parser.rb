@@ -74,6 +74,21 @@ class ParserTest < Test::Unit::TestCase
     assert_true(completed)
   end
 
+  def test_data_after_complete
+    body = "status"
+    header = GQTP::Header.new
+    header.size = body.bytesize
+
+    @parser << header.pack << body
+    assert_true(@parser.completed?)
+
+    garbage = "X"
+    message = "already completed: <#{garbage.inspect}>"
+    assert_raise(GQTP::ParseError.new(message)) do
+      @parser << garbage
+    end
+  end
+
   def test_complete?
     data = "status"
     header = GQTP::Header.new
