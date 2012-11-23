@@ -114,6 +114,17 @@ class ParserTest < Test::Unit::TestCase
         assert_equal([       header,        body],
                      [parsed_header, parsed_body])
       end
+
+      def test_not_completed
+        header = GQTP::Header.new
+        not_completed_data = header.pack[0..1]
+
+        message = "not completed: <#{not_completed_data.inspect}>"
+        exception = GQTP::ParseError.new(message)
+        assert_raise(exception) do
+          GQTP::Parser.parse(not_completed_data)
+        end
+      end
     end
   end
 end
