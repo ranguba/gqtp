@@ -105,15 +105,15 @@ class ParserTest < Test::Unit::TestCase
     end
 
     class StandAloneTest < self
-    def test_success
-      body = "status"
-      header = GQTP::Header.new
-      header.size = body.bytesize
+      def test_success
+        body = "status"
+        header = GQTP::Header.new
+        header.size = body.bytesize
 
-      parsed_header, parsed_body = GQTP::Parser.parse([header.pack, body])
-      assert_equal([       header,        body],
-                   [parsed_header, parsed_body])
-    end
+        parsed_header, parsed_body = GQTP::Parser.parse([header.pack, body])
+        assert_equal([       header,        body],
+                     [parsed_header, parsed_body])
+      end
     end
   end
 end
