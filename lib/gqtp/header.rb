@@ -72,6 +72,24 @@ module GQTP
       data.pack(self.class.pack_format)
     end
 
+    def ==(other)
+      other.is_a?(self.class) and to_hash == other.to_hash
+    end
+
+    def to_hash
+      {
+        :proto      => @proto,
+        :query_type => @query_type,
+        :key_length => @key_length,
+        :level      => @level,
+        :flags      => @flags,
+        :status     => @status,
+        :size       => @size,
+        :opaque     => @opaque,
+        :cas        => @cas,
+      }
+    end
+
     module Protocol
       GQTP = 0xc7
     end
