@@ -81,6 +81,7 @@ module GQTP
       end
     end
 
+    attr_reader :header
     def initialize
       @data = "".force_encoding("ASCII-8BIT")
       @header = nil

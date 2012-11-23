@@ -27,4 +27,6 @@ $LOAD_PATH.unshift(lib_dir)
 require "test-unit"
 require "test/unit/notify"
 
+Thread.abort_on_exception = true
+
 exit Test::Unit::AutoRunner.run(true, test_dir)

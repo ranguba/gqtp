@@ -16,7 +16,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-require "gqtp/header"
+require "gqtp/parser"
 
 module GQTP
   class Client
@@ -37,26 +37,30 @@ module GQTP
           read(&block)
         end
       end
+
       if block_given?
+        write_request
+      else
         write_request.wait
       end
     end
 
     def read(&block)
       sync = !block_given?
-      response_header = response_body = nil
+      parser = Parser.new
+      response_body = nil
       read_body_request = nil
       read_header_request = @connection.read(Header.size) do |header|
-        response_header = Header.parse(header)
-        read_body_request = @connection.read(response_header.size) do |body|
+        parser << header
+        read_body_request = @connection.read(parser.header.size) do |body|
           response_body = body
-          yield(response_header, response_body) if block_given?
+          yield(parser.header, response_body) if block_given?
         end
       end
       if sync
         read_header_request.wait
         read_body_request.wait
-        [response_header, response_body]
+        [parser.header, response_body]
       end
     end
 
