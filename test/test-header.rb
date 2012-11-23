@@ -32,4 +32,18 @@ class HeaderTest < Test::Unit::TestCase
       assert_not_equal(header_size_0, header_size_1)
     end
   end
+
+  class InitializeTest < self
+    def test_hash
+      header = GQTP::Header.new(:size => 29)
+      assert_equal(29, header.size)
+    end
+
+    def test_block
+      header = GQTP::Header.new do |h|
+        h.size = 29
+      end
+      assert_equal(29, header.size)
+    end
+  end
 end

@@ -52,16 +52,17 @@ module GQTP
 
     attr_accessor :proto, :query_type, :key_length, :level, :flags
     attr_accessor :status, :size, :opaque, :cas
-    def initialize
-      @proto = Protocol::GQTP
-      @query_type = ContentType::NONE
-      @key_length = 0
-      @level = 0
-      @flags = 0
-      @status = Status::SUCCESS
-      @size = 0
-      @opaque = 0
-      @cas = 0
+    def initialize(values={})
+      @proto      = values[:proto]      || Protocol::GQTP
+      @query_type = values[:query_type] || ContentType::NONE
+      @key_length = values[:key_length] || 0
+      @level      = values[:level]      || 0
+      @flags      = values[:flags]      || 0
+      @status     = values[:status]     || Status::SUCCESS
+      @size       = values[:size]       || 0
+      @opaque     = values[:opaque]     || 0
+      @cas        = values[:cas]        || 0
+      yield(self) if block_given?
     end
 
     def pack
