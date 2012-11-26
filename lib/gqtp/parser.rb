@@ -130,7 +130,7 @@ module GQTP
 
     private
     def reset
-      @data = "".force_encoding("ASCII-8BIT")
+      @buffer = "".force_encoding("ASCII-8BIT")
       @header = nil
       @body_size = 0
     end
@@ -142,14 +142,15 @@ module GQTP
     end
 
     def parse_header(chunk)
-      @data << chunk
-      return if @data.bytesize < Header.size
-      @header = Header.parse(@data)
+      @buffer << chunk
+      return if @buffer.bytesize < Header.size
+      @header = Header.parse(@buffer)
       on_header(@header)
-      if @data.bytesize > Header.size
-        parse_body(@data[Header.size..-1])
+      buffer = @buffer
+      @buffer = nil
+      if buffer.bytesize > Header.size
+        parse_body(buffer[Header.size..-1])
       end
-      @data = nil
     end
 
     def parse_body(chunk)
