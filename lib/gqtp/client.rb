@@ -71,15 +71,16 @@ module GQTP
     private
     def create_connection
       connection = @options[:connection] || :thread
-      case connection
-      when :thread, :synchronous
+
+      begin
         require "gqtp/connection/#{connection}"
-        module_name = connection.to_s.capitalize
-        connection_module = GQTP::Connection::const_get(module_name)
-        connection_module::Client.new(@options)
-      else
+      rescue LoadError
         raise "unknown connection: <#{connection.inspect}>"
       end
+
+      module_name = connection.to_s.capitalize
+      connection_module = GQTP::Connection::const_get(module_name)
+      connection_module::Client.new(@options)
     end
   end
 end

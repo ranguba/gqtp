@@ -56,16 +56,17 @@ module GQTP
 
     private
     def create_connection
-      case @connection
-      when :thread, :synchronous
+      begin
         require "gqtp/connection/#{@connection}"
-        module_name = @connection.to_s.capitalize
-        connection_module = GQTP::Connection::const_get(module_name)
-        connection_module::Client.new(:host => @upstream_host,
-                                      :port => @upstream_port)
-      else
+      rescue LoadError
         raise "unknown connection: <#{@connection.inspect}>"
       end
+
+      require "gqtp/connection/#{@connection}"
+      module_name = @connection.to_s.capitalize
+      connection_module = GQTP::Connection::const_get(module_name)
+      connection_module::Client.new(:host => @upstream_host,
+                                    :port => @upstream_port)
     end
   end
 end
