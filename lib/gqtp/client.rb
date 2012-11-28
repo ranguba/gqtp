@@ -72,7 +72,7 @@ module GQTP
     def create_connection
       connection = @options[:connection] || :thread
       case connection
-      when :thread
+      when :thread, :synchronous
         require "gqtp/connection/#{connection}"
         module_name = connection.to_s.capitalize
         connection_module = GQTP::Connection::const_get(module_name)
