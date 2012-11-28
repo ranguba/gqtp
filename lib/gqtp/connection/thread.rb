@@ -53,7 +53,12 @@ module GQTP
 
         def read(size=nil)
           thread = ::Thread.new do
-            yield(@real_io.read(size)) if block_given?
+            data = @real_io.read(size)
+            if block_given?
+              yield(data)
+            else
+              data
+            end
           end
           Request.new(thread)
         end
