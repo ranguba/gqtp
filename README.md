@@ -9,19 +9,46 @@ gqtp
 Gqtp gem is a GQTP (Groonga Query Transfer Protocol) Ruby
 implementation.
 
-Gqtp gem provides both GQTP client and GQTP server implementations.
-They provide asynchronous API. You can use gqtp gem for high
-concurrency use.
+Gqtp gem provides both GQTP client, GQTP server and GQTP proxy
+implementations. They provide asynchronous API. You can use gqtp gem
+for high concurrency use.
 
 ## Install
 
-```
-% gem install gqtp
-```
+    % gem install gqtp
 
 ## Usage
 
-TODO
+### Client
+
+    client = GQTP::Client.new(:host => "192.168.0.1", :port => 10041)
+    request = client.send("status") do |header, body|
+      p body # => "{\"alloc_count\":163,...}"
+    end
+    request.wait
+
+### Server
+
+    server = GQTP::Server.new(:host => "192.168.0.1", :port => 10041)
+    server.on_request do |request, client|
+      body = "{\"alloc_count\":163,...}"
+      header = GQTP::Header.new
+      header.query_type = GQTP::Header::ContentType::JSON
+      header.flags = GQTP::Header::Flag::TAIL
+      header.size = body.bytesize
+      client.write(header.pack, body) do
+        client.close
+      end
+    end
+    server.run.wait
+
+### Proxy
+
+    proxy = GQTP::Proxy.new(:host => "127.0.0.1",
+                            :port => 10041,
+                            :upstream_host => "192.168.0.1",
+                            :upstream_port => 10041)
+    proxy.run.wait
 
 ## Dependencies
 
