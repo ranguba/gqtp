@@ -26,12 +26,13 @@ module GQTP
       @options[:address] ||= "0.0.0.0"
       @options[:port] ||= 10041
       @on_request = nil
+      @on_connect = nil
     end
 
     def run
       @connection = create_connection
       @connection.run do |client|
-        process_request(client)
+        process_request(client, on_connect(client))
       end
     end
 
@@ -39,12 +40,25 @@ module GQTP
       @connection.shutdown
     end
 
+    def on_connect(*arguments, &block)
+      if block_given?
+        @on_connect = block
+      else
+        client, = arguments
+        if @on_connect
+          @on_connect.call(client)
+        else
+          nil
+        end
+      end
+    end
+
     def on_request(*arguments, &block)
       if block_given?
         @on_request = block
       else
-        request, client = arguments
-        @on_request.call(request, client)
+        request, client, connect_info = arguments
+        @on_request.call(request, client, connect_info)
       end
     end
 
@@ -63,13 +77,13 @@ module GQTP
       connection_module::Server.new(@options)
     end
 
-    def process_request(client)
+    def process_request(client, connect_info)
       read_header_request = client.read(Header.size) do |header|
         request_header = Header.parse(header)
         read_body_request = client.read(request_header.size) do |body|
           request = Request.new(request_header, body)
-          on_request(request, client)
-          process_request(client)
+          on_request(request, client, connect_info)
+          process_request(client, connect_info)
         end
       end
     end

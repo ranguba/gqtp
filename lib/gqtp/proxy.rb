@@ -35,8 +35,10 @@ module GQTP
     end
 
     def run
-      connection = create_connection
-      @server.on_request do |request, client|
+      @server.on_connect do |client|
+        create_connection
+      end
+      @server.on_request do |request, client, connection|
         connection.write(request.header.pack, request.body) do
           read_header_request = connection.read(Header.size) do |header|
             response_header = Header.parse(header)
