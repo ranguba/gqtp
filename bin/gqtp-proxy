@@ -1,0 +1,77 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2012  Kouhei Sutou <kou@clear-code.com>
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+require "optparse"
+require "ostruct"
+
+require "gqtp"
+
+options = OpenStruct.new
+options.listen_address = "0.0.0.0"
+options.listen_port = 10041
+options.upstream_address = nil
+options.upstream_port = 10041
+options.backend = :thread
+
+parser = OptionParser.new
+parser.on("--listen-address=ADDRESS",
+          "IP address or host name to listen",
+          "(#{options.listen_address})") do |address|
+  options.listen_address = address
+end
+parser.on("--listen-port=PORT", Integer,
+          "Port number to listen",
+          "(#{options.listen_port})") do |port|
+  options.listen_port = port
+end
+parser.on("--upstream-address=ADDRESS",
+          "IP address or host name of upstream",
+          "(#{options.upstream_address})") do |address|
+  options.upstream_address = address
+end
+parser.on("--upstream-port=PORT", Integer,
+          "Port number of upstream",
+          "(#{options.upstream_port})") do |port|
+  options.upstream_port = port
+end
+available_backends = ["thread", "synchronous", "coolio"].join(", ")
+parser.on("--backend=BACKEND",
+          "Use BACKEND for connection",
+          "[#{available_backends}]",
+          "(#{options.backend})") do |backend|
+  options.backend = backend.to_sym
+end
+
+begin
+  parser.parse!
+rescue OptionParser::ParseError
+  puts($!.message)
+  exit(false)
+end
+
+if options.upstream_address.nil?
+  puts("--upstream-address is required.")
+  exit(false)
+end
+
+proxy = GQTP::Proxy.new(:listen_address => options.listen_address,
+                        :listen_port => options.listen_port,
+                        :upstream_address => options.upstream_address,
+                        :upstream_port => options.upstream_port,
+                        :connection => options.backend)
+proxy.run.wait
