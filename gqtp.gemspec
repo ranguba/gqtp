@@ -25,7 +25,7 @@ require "gqtp/version"
 
 Gem::Specification.new do |spec|
   spec.name = "gqtp"
-  spec.version = Grntest::VERSION
+  spec.version = GQTP::VERSION
   spec.homepage = "https://github.com/ranguba/gqtp"
   spec.authors = ["Kouhei Sutou"]
   spec.email = ["kou@clear-code.com"]
