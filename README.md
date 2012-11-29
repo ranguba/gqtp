@@ -6,8 +6,9 @@ gqtp
 
 ## Description
 
-Gqtp gem is a GQTP (Groonga Query Transfer Protocol) Ruby
-implementation.
+Gqtp gem is a
+[GQTP (Groonga Query Transfer Protocol)](http://groonga.org/docs/spec/gqtp.html)
+Ruby implementation.
 
 Gqtp gem provides both GQTP client, GQTP server and GQTP proxy
 implementations. They provide asynchronous API. You can use gqtp gem
