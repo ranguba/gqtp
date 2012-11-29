@@ -40,17 +40,12 @@ module GQTP
           @buffer = "".force_encoding("ASCII-8BIT")
         end
 
-        def attach(loop)
-          super
-          @request = Request.new(loop)
-        end
-
         def write(*chunks, &block)
           chunks.each do |chunk|
             super(chunk)
           end
           @write_callbacks << block if block_given?
-          @request
+          Request.new(evloop)
         end
 
         def on_write_complete
@@ -66,7 +61,7 @@ module GQTP
           else
             @read_callbacks << [size, block]
           end
-          @request
+          Request.new(evloop)
         end
 
         def on_read(data)
@@ -121,7 +116,7 @@ module GQTP
         end
 
         def run
-          @server = TCPServer.new(@address, @port, Socket) do |client|
+          @server = ::Coolio::TCPServer.new(@address, @port, Socket) do |client|
             yield(client)
           end
           @server.attach(@loop)
