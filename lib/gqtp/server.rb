@@ -31,13 +31,7 @@ module GQTP
     def run
       @connection = create_connection
       @connection.run do |client|
-        read_header_request = client.read(Header.size) do |header|
-          request_header = Header.parse(header)
-          read_body_request = client.read(request_header.size) do |body|
-            request = Request.new(request_header, body)
-            on_request(request, client)
-          end
-        end
+        process_request(client)
       end
     end
 
@@ -67,6 +61,17 @@ module GQTP
       module_name = connection.to_s.capitalize
       connection_module = GQTP::Connection::const_get(module_name)
       connection_module::Server.new(@options)
+    end
+
+    def process_request(client)
+      read_header_request = client.read(Header.size) do |header|
+        request_header = Header.parse(header)
+        read_body_request = client.read(request_header.size) do |body|
+          request = Request.new(request_header, body)
+          on_request(request, client)
+          process_request(client)
+        end
+      end
     end
 
     class Request
