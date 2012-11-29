@@ -22,8 +22,8 @@ require "gqtp/client"
 
 class ClientTest < Test::Unit::TestCase
   def setup
-    @host = "127.0.0.1"
-    @server = TCPServer.new(@host, 0)
+    @address = "127.0.0.1"
+    @server = TCPServer.new(@address, 0)
     @port = @server.addr[1]
 
     @request_body = nil
@@ -49,7 +49,7 @@ class ClientTest < Test::Unit::TestCase
 
   def test_sync
     @response_body = "[false]"
-    client = GQTP::Client.new(:host => @host, :port => @port)
+    client = GQTP::Client.new(:address => @address, :port => @port)
     client.send("status")
     header, body = client.read
     assert_equal(["status",      @response_body.bytesize, @response_body],
@@ -58,7 +58,7 @@ class ClientTest < Test::Unit::TestCase
 
   def test_async
     @response_body = "[false]"
-    client = GQTP::Client.new(:host => @host, :port => @port)
+    client = GQTP::Client.new(:address => @address, :port => @port)
     request = client.send("status") do |header, body|
       assert_equal(["status",      @response_body.bytesize, @response_body],
                    [@request_body, header.size,             body])

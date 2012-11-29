@@ -20,10 +20,10 @@ require "gqtp/parser"
 
 module GQTP
   class Client
-    attr_accessor :host, :port
+    attr_accessor :address, :port
     def initialize(options={})
       @options = options.dup
-      @options[:host] ||= "127.0.0.1"
+      @options[:address] ||= "127.0.0.1"
       @options[:port] ||= 10041
       @connection = create_connection
     end

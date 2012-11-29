@@ -88,13 +88,13 @@ module GQTP
       end
 
       class Client
-        attr_accessor :host, :port
+        attr_accessor :address, :port
         def initialize(options={})
           @options = options
-          @host = options[:host] || "127.0.0.1"
+          @address = options[:address] || "127.0.0.1"
           @port = options[:port] || 10041
           @loop = options[:loop] || ::Coolio::Loop.default
-          @socket = Socket.connect(@host, @port)
+          @socket = Socket.connect(@address, @port)
           @socket.attach(@loop)
         end
 
@@ -112,16 +112,16 @@ module GQTP
       end
 
       class Server
-        attr_accessor :host, :port
+        attr_accessor :address, :port
         def initialize(options={})
           @options = options
-          @host = options[:host] || "0.0.0.0"
+          @address = options[:address] || "0.0.0.0"
           @port = options[:port] || 10041
           @loop = options[:loop] || ::Coolio::Loop.default
         end
 
         def run
-          @server = TCPServer.new(@host, @port, Socket) do |client|
+          @server = TCPServer.new(@address, @port, Socket) do |client|
             yield(client)
           end
           @server.attach(@loop)

@@ -20,15 +20,16 @@ require "gqtp/server"
 
 module GQTP
   class Proxy
-    attr_accessor :listen_host, :listen_port, :upstream_host, :upstream_port
+    attr_accessor :listen_address, :listen_port
+    attr_accessor :upstream_address, :upstream_port
     def initialize(options={})
       @options = options.dup
-      @listen_host = @options[:listen_host] || "0.0.0.0"
+      @listen_address = @options[:listen_address] || "0.0.0.0"
       @listen_port = @options[:listen_port] || 10041
-      @upstream_host = @options[:upstream_host] || "127.0.0.1"
+      @upstream_address = @options[:upstream_address] || "127.0.0.1"
       @upstream_port = @options[:upstream_port] || 10041
       @connection = @options[:connection] || :thread
-      @server = Server.new(:host => @listen_host,
+      @server = Server.new(:address => @listen_address,
                            :port => @listen_port,
                            :connection => @connection)
     end
@@ -65,7 +66,7 @@ module GQTP
       require "gqtp/connection/#{@connection}"
       module_name = @connection.to_s.capitalize
       connection_module = GQTP::Connection::const_get(module_name)
-      connection_module::Client.new(:host => @upstream_host,
+      connection_module::Client.new(:address => @upstream_address,
                                     :port => @upstream_port)
     end
   end

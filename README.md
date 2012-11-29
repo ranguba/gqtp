@@ -21,7 +21,7 @@ for high concurrency use.
 
 ### Client
 
-    client = GQTP::Client.new(:host => "192.168.0.1", :port => 10041)
+    client = GQTP::Client.new(:address => "192.168.0.1", :port => 10041)
     request = client.send("status") do |header, body|
       p body # => "{\"alloc_count\":163,...}"
     end
@@ -29,7 +29,7 @@ for high concurrency use.
 
 ### Server
 
-    server = GQTP::Server.new(:host => "192.168.0.1", :port => 10041)
+    server = GQTP::Server.new(:address => "192.168.0.1", :port => 10041)
     server.on_request do |request, client|
       body = "{\"alloc_count\":163,...}"
       header = GQTP::Header.new
@@ -44,9 +44,9 @@ for high concurrency use.
 
 ### Proxy
 
-    proxy = GQTP::Proxy.new(:host => "127.0.0.1",
-                            :port => 10041,
-                            :upstream_host => "192.168.0.1",
+    proxy = GQTP::Proxy.new(:listen_address => "127.0.0.1",
+                            :listen_port => 10041,
+                            :upstream_address => "192.168.0.1",
                             :upstream_port => 10041)
     proxy.run.wait
 

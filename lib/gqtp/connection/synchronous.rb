@@ -58,12 +58,12 @@ module GQTP
       end
 
       class Client
-        attr_accessor :host, :port
+        attr_accessor :address, :port
         def initialize(options={})
           @options = options
-          @host = options[:host] || "127.0.0.1"
+          @address = options[:address] || "127.0.0.1"
           @port = options[:port] || 10041
-          @socket = TCPSocket.open(@host, @port)
+          @socket = TCPSocket.open(@address, @port)
           @io = IO.new(@socket)
         end
 
@@ -81,16 +81,16 @@ module GQTP
       end
 
       class Server
-        attr_accessor :host, :port
+        attr_accessor :address, :port
         def initialize(options={})
           @options = options
-          @host = options[:host] || "0.0.0.0"
+          @address = options[:address] || "0.0.0.0"
           @port = options[:port] || 10041
           @backlog = options[:backlog] || 128
         end
 
         def run
-          @server = TCPServer.new(@host, @port)
+          @server = TCPServer.new(@address, @port)
           @server.listen(@backlog)
           loop do
             client = @server.accept

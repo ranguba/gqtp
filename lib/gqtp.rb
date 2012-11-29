@@ -19,3 +19,4 @@
 require "gqtp/version"
 require "gqtp/client"
 require "gqtp/server"
+require "gqtp/proxy"
