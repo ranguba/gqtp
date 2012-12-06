@@ -28,8 +28,8 @@ module GQTP
       @connection = create_connection
     end
 
-    def send(body, &block)
-      header = Header.new
+    def send(body, options={}, &block)
+      header = options[:header] || Header.new
       header.size = body.bytesize
 
       write_request = @connection.write(header.pack, body) do
@@ -65,7 +65,18 @@ module GQTP
     end
 
     def close
-      @connection.close
+      sync = !block_given?
+      ack_request = nil
+      quit_request = send("quit", :header => header_for_close) do
+        ack_request = send("ACK", :header => header_for_close) do
+          @connection.close
+          yield if block_given?
+        end
+      end
+      if sync
+        quit_request.wait
+        ack_request.wait
+      end
     end
 
     private
@@ -81,6 +92,10 @@ module GQTP
       module_name = connection.to_s.capitalize
       connection_module = GQTP::Connection::const_get(module_name)
       connection_module::Client.new(@options)
+    end
+
+    def header_for_close
+      Header.new(:flags => Header::Flag::HEAD)
     end
   end
 end
