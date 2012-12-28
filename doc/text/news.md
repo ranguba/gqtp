@@ -1,5 +1,11 @@
 # News
 
+## 1.0.2: 2012-12-29
+
+### Fixes
+
+* Add missing file for documentaion.
+
 ## 1.0.1: 2012-12-29
 
 ### Improvements
