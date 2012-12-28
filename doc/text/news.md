@@ -2,7 +2,7 @@
 
 ## 1.0.1: 2012-12-29
 
-## Improvements
+### Improvements
 
 * [client] Sent
   [quit command](http://groonga.org/docs/reference/commands/quit.html)
