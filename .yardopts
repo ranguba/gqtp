@@ -1,0 +1,5 @@
+--output-dir doc/reference
+--use-cache .yardoc
+lib/**/*.rb
+-
+doc/text/**/*
