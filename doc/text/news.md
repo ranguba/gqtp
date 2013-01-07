@@ -1,5 +1,12 @@
 # News
 
+## 1.0.3: 2013-01-07
+
+### Fixes
+
+* Fixed the bug anyone can't see README document in rubydoc.info.
+  README URL: http://rubydoc.info/gems/gqtp/
+
 ## 1.0.2: 2012-12-29
 
 ### Fixes
