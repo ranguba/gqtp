@@ -11,7 +11,7 @@
 
 ### Fixes
 
-* Add missing file for documentaion.
+* Added missing file for documentaion.
 
 ## 1.0.1: 2012-12-29
 
