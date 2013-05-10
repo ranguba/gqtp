@@ -17,6 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 require "gqtp/parser"
+require "gqtp/sequential-request"
 
 module GQTP
   class Client
@@ -32,16 +33,15 @@ module GQTP
       header = options[:header] || Header.new
       header.size = body.bytesize
 
-      write_request = @connection.write(header.pack, body) do
-        if block_given?
-          read(&block)
-        end
-      end
-
       if block_given?
-        write_request
+        sequential_request = SequentialRequest.new
+        write_request = @connection.write(header.pack, body) do
+          sequential_request << read(&block)
+        end
+        sequential_request << write_request
+        sequential_request
       else
-        write_request.wait
+        @connection.write(header.pack, body)
       end
     end
 
@@ -49,18 +49,23 @@ module GQTP
       sync = !block_given?
       parser = Parser.new
       response_body = nil
-      read_body_request = nil
+
+      sequential_request = SequentialRequest.new
       read_header_request = @connection.read(Header.size) do |header|
         parser << header
         read_body_request = @connection.read(parser.header.size) do |body|
           response_body = body
           yield(parser.header, response_body) if block_given?
         end
+        sequential_request << read_body_request
       end
+      sequential_request << read_header_request
+
       if sync
-        read_header_request.wait
-        read_body_request.wait
+        sequential_request.wait
         [parser.header, response_body]
+      else
+        sequential_request
       end
     end
 
