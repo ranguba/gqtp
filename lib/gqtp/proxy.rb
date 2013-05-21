@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2012  Kouhei Sutou <kou@clear-code.com>
+# Copyright (C) 2012-2013  Kouhei Sutou <kou@clear-code.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -40,9 +40,9 @@ module GQTP
       end
       @server.on_request do |request, client, connection|
         connection.write(request.header.pack, request.body) do
-          read_header_request = connection.read(Header.size) do |header|
+          connection.read(Header.size) do |header|
             response_header = Header.parse(header)
-            read_body_request = connection.read(response_header.size) do |body|
+            connection.read(response_header.size) do |body|
               client.write(header, body) do
               end
             end

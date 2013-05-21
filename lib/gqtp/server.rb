@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2012  Kouhei Sutou <kou@clear-code.com>
+# Copyright (C) 2012-2013  Kouhei Sutou <kou@clear-code.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -78,9 +78,9 @@ module GQTP
     end
 
     def process_request(client, connect_info)
-      read_header_request = client.read(Header.size) do |header|
+      client.read(Header.size) do |header|
         request_header = Header.parse(header)
-        read_body_request = client.read(request_header.size) do |body|
+        client.read(request_header.size) do |body|
           request = Request.new(request_header, body)
           on_request(request, client, connect_info)
           process_request(client, connect_info)
