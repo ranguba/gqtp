@@ -1,5 +1,12 @@
 # News
 
+## 1.0.4: 2013-07-08
+
+### Fixes
+
+* Fixed missing synchronization bug
+* Suppressed warnings
+
 ## 1.0.3: 2013-01-07
 
 ### Fixes
