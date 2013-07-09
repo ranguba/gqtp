@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2012  Kouhei Sutou <kou@clear-code.com>
+# Copyright (C) 2012-2013  Kouhei Sutou <kou@clear-code.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -32,13 +32,8 @@ class ClientTest < Test::Unit::TestCase
       client = @server.accept
       @server.close
 
-      header = GQTP::Header.parse(client.read(GQTP::Header.size))
-      @request_body = client.read(header.size)
+      process_client(client)
 
-      response_header = GQTP::Header.new
-      response_header.size = @response_body.bytesize
-      client.write(response_header.pack)
-      client.write(@response_body)
       client.close
     end
   end
@@ -64,5 +59,16 @@ class ClientTest < Test::Unit::TestCase
                    [@request_body, header.size,             body])
     end
     request.wait
+  end
+
+  private
+  def process_client(client)
+    header = GQTP::Header.parse(client.read(GQTP::Header.size))
+    @request_body = client.read(header.size)
+
+    response_header = GQTP::Header.new
+    response_header.size = @response_body.bytesize
+    client.write(response_header.pack)
+    client.write(@response_body)
   end
 end
