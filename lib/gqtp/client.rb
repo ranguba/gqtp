@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2012  Kouhei Sutou <kou@clear-code.com>
+# Copyright (C) 2012-2013  Kouhei Sutou <kou@clear-code.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -69,18 +69,38 @@ module GQTP
       end
     end
 
+    # Closes the opened connection. You can't send a new request after
+    # this method is called.
+    #
+    # @overload close
+    #   Closes synchronously.
+    #
+    #   @return [true]
+    #
+    # @overload close {}
+    #   Closes asynchronously.
+    #
+    #   @yield [] Calls the block when the opened connection is closed.
+    #   @return [#wait] The request object. If you want to wait until
+    #      the request is processed. You can send #wait message to the
+    #      request.
     def close
       sync = !block_given?
-      ack_request = nil
+      sequential_request = SequentialRequest.new
       quit_request = send("quit", :header => header_for_close) do
         ack_request = send("ACK", :header => header_for_close) do
           @connection.close
           yield if block_given?
         end
+        sequential_request << ack_request
       end
+      sequential_request << quit_request
+
       if sync
-        quit_request.wait
-        ack_request.wait
+        sequential_request.wait
+        true
+      else
+        sequential_request
       end
     end
 

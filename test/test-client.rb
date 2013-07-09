@@ -71,4 +71,30 @@ class ClientTest < Test::Unit::TestCase
     client.write(response_header.pack)
     client.write(@response_body)
   end
+
+  class CloseTest < self
+    def test_sync
+      @response_body = "[]"
+      client = GQTP::Client.new(:address => @address, :port => @port)
+      assert_true(client.close)
+    end
+
+    def test_async
+      @response_body = "[]"
+      client = GQTP::Client.new(:address => @address, :port => @port)
+      closed = false
+      close_request = client.close do
+        closed = true
+      end
+      assert_false(closed)
+      close_request.wait
+      assert_true(closed)
+    end
+
+    private
+    def process_client(client)
+      super(client)
+      super(client)
+    end
+  end
 end
