@@ -1,5 +1,11 @@
 # News
 
+## 1.0.5: 2013-09-18
+
+### Improvements
+
+  * Supported async close.
+
 ## 1.0.4: 2013-07-08
 
 ### Fixes
