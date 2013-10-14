@@ -115,7 +115,7 @@ module GQTP
       end
 
       module_name = connection.to_s.capitalize
-      connection_module = GQTP::Connection::const_get(module_name)
+      connection_module = GQTP::Connection.const_get(module_name)
       connection_module::Client.new(@options)
     end
 
