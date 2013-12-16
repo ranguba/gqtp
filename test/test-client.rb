@@ -90,11 +90,5 @@ class ClientTest < Test::Unit::TestCase
       close_request.wait
       assert_true(closed)
     end
-
-    private
-    def process_client(client)
-      super(client)
-      super(client)
-    end
   end
 end
