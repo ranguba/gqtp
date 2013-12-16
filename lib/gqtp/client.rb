@@ -88,14 +88,8 @@ module GQTP
       sync = !block_given?
       sequential_request = SequentialRequest.new
       quit_request = send("quit", :header => header_for_close) do
-        ack_body = "ACK"
-        ack_header = header_for_close
-        ack_header.size = ack_body.bytesize
-        ack_request = @connection.write(ack_header.pack, ack_body) do
-          @connection.close
-          yield if block_given?
-        end
-        sequential_request << ack_request
+        @connection.close
+        yield if block_given?
       end
       sequential_request << quit_request
 
