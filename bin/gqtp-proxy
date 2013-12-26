@@ -23,9 +23,9 @@ require "gqtp"
 
 options = OpenStruct.new
 options.listen_address = "0.0.0.0"
-options.listen_port = 10041
+options.listen_port = 10043
 options.upstream_address = nil
-options.upstream_port = 10041
+options.upstream_port = 10043
 options.backend = :thread
 
 parser = OptionParser.new

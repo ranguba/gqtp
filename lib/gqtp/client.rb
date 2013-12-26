@@ -25,7 +25,7 @@ module GQTP
     def initialize(options={})
       @options = options.dup
       @options[:address] ||= "127.0.0.1"
-      @options[:port] ||= 10041
+      @options[:port] ||= 10043
       @connection = create_connection
     end
 

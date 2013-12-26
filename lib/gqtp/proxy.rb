@@ -25,9 +25,9 @@ module GQTP
     def initialize(options={})
       @options = options.dup
       @listen_address = @options[:listen_address] || "0.0.0.0"
-      @listen_port = @options[:listen_port] || 10041
+      @listen_port = @options[:listen_port] || 10043
       @upstream_address = @options[:upstream_address] || "127.0.0.1"
-      @upstream_port = @options[:upstream_port] || 10041
+      @upstream_port = @options[:upstream_port] || 10043
       @connection = @options[:connection] || :thread
       @server = Server.new(:address => @listen_address,
                            :port => @listen_port,

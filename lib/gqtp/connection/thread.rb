@@ -73,7 +73,7 @@ module GQTP
         def initialize(options={})
           @options = options
           @address = options[:address] || "127.0.0.1"
-          @port = options[:port] || 10041
+          @port = options[:port] || 10043
           @socket = TCPSocket.open(@address, @port)
           @io = IO.new(@socket)
         end
@@ -96,7 +96,7 @@ module GQTP
         def initialize(options={})
           @options = options
           @address = options[:address] || "0.0.0.0"
-          @port = options[:port] || 10041
+          @port = options[:port] || 10043
           @backlog = options[:backlog] || 128
         end
 

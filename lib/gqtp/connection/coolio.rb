@@ -87,7 +87,7 @@ module GQTP
         def initialize(options={})
           @options = options
           @address = options[:address] || "127.0.0.1"
-          @port = options[:port] || 10041
+          @port = options[:port] || 10043
           @loop = options[:loop] || ::Coolio::Loop.default
           @socket = Socket.connect(@address, @port)
           @socket.attach(@loop)
@@ -111,7 +111,7 @@ module GQTP
         def initialize(options={})
           @options = options
           @address = options[:address] || "0.0.0.0"
-          @port = options[:port] || 10041
+          @port = options[:port] || 10043
           @loop = options[:loop] || ::Coolio::Loop.default
         end
 
