@@ -16,9 +16,20 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-require "gqtp/header"
-
 module GQTP
   class Error < StandardError
+  end
+
+  class ConnectionError < Error
+    attr_reader :address
+    attr_reader :port
+    attr_reader :detail
+    def initialize(address, port, detail)
+      @address = address
+      @port    = port
+      @detail  = detail
+      super("Failed to connect to <#{@address}:#{@port}>: " +
+              "#{@detail.message} (#{@detail.class})")
+    end
   end
 end

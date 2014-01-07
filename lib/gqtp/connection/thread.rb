@@ -74,7 +74,11 @@ module GQTP
           @options = options
           @address = options[:address] || "127.0.0.1"
           @port = options[:port] || 10043
-          @socket = TCPSocket.open(@address, @port)
+          begin
+            @socket = TCPSocket.open(@address, @port)
+          rescue SystemCallError
+            raise ConnectionError.new(@address, @port, $!)
+          end
           @io = IO.new(@socket)
         end
 

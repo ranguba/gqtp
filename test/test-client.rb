@@ -27,6 +27,15 @@ class ClientTest < Test::Unit::TestCase
         GQTP::Client.new(:connection => "unknown")
       end
     end
+
+    def test_no_server
+      server = TCPServer.new("127.0.0.1", 0)
+      free_port = server.addr[1]
+      server.close
+      assert_raise(GQTP::ConnectionError) do
+        GQTP::Client.new(:port => free_port)
+      end
+    end
   end
 
   class RequestTest < self
