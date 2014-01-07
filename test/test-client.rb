@@ -21,6 +21,14 @@ require "socket"
 require "gqtp/client"
 
 class ClientTest < Test::Unit::TestCase
+  class CreateConnectionTest < self
+    def test_unknown
+      assert_raise(ArgumentError.new("unknown connection: <\"unknown\">")) do
+        GQTP::Client.new(:connection => "unknown")
+      end
+    end
+  end
+
   class RequestTest < self
     def setup
       @address = "127.0.0.1"
@@ -72,12 +80,6 @@ class ClientTest < Test::Unit::TestCase
                        [@request_body, header.size,             body])
         end
         request.wait
-      end
-    end
-
-    def test_unknown_connection
-      assert_raise(ArgumentError.new("unknown connection: <\"unknown\">")) do
-        GQTP::Client.new(:connection => "unknown")
       end
     end
 
