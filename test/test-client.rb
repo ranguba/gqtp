@@ -22,81 +22,81 @@ require "gqtp/client"
 
 class ClientTest < Test::Unit::TestCase
   class RequestTest < self
-  def setup
-    @address = "127.0.0.1"
-    @server = TCPServer.new(@address, 0)
-    @port = @server.addr[1]
+    def setup
+      @address = "127.0.0.1"
+      @server = TCPServer.new(@address, 0)
+      @port = @server.addr[1]
 
-    @request_body = nil
-    @response_body = nil
-    @thread = Thread.new do
-      client = @server.accept
-      @server.close
+      @request_body = nil
+      @response_body = nil
+      @thread = Thread.new do
+        client = @server.accept
+        @server.close
 
-      process_client(client)
+        process_client(client)
 
-      client.close
+        client.close
+      end
     end
-  end
 
-  def teardown
-    @thread.kill
-  end
+    def teardown
+      @thread.kill
+    end
 
-  def test_sync
-    @response_body = "[false]"
-    client = GQTP::Client.new(:address => @address, :port => @port)
-    client.send("status")
-    header, body = client.read
-    assert_equal(["status",      @response_body.bytesize, @response_body],
-                 [@request_body, header.size,             body])
-  end
-
-  def test_async
-    @response_body = "[false]"
-    client = GQTP::Client.new(:address => @address, :port => @port)
-    request = client.send("status") do |header, body|
+    def test_sync
+      @response_body = "[false]"
+      client = GQTP::Client.new(:address => @address, :port => @port)
+      client.send("status")
+      header, body = client.read
       assert_equal(["status",      @response_body.bytesize, @response_body],
                    [@request_body, header.size,             body])
     end
-    request.wait
-  end
-
-  def test_unknown_connection
-    assert_raise(ArgumentError.new("unknown connection: <\"unknown\">")) do
-      GQTP::Client.new(:connection => "unknown")
-    end
-  end
-
-  private
-  def process_client(client)
-    header = GQTP::Header.parse(client.read(GQTP::Header.size))
-    @request_body = client.read(header.size)
-
-    response_header = GQTP::Header.new
-    response_header.size = @response_body.bytesize
-    client.write(response_header.pack)
-    client.write(@response_body)
-  end
-
-  class CloseTest < self
-    def test_sync
-      @response_body = "[]"
-      client = GQTP::Client.new(:address => @address, :port => @port)
-      assert_true(client.close)
-    end
 
     def test_async
-      @response_body = "[]"
+      @response_body = "[false]"
       client = GQTP::Client.new(:address => @address, :port => @port)
-      closed = false
-      close_request = client.close do
-        closed = true
+      request = client.send("status") do |header, body|
+        assert_equal(["status",      @response_body.bytesize, @response_body],
+                     [@request_body, header.size,             body])
       end
-      assert_false(closed)
-      close_request.wait
-      assert_true(closed)
+      request.wait
     end
-  end
+
+    def test_unknown_connection
+      assert_raise(ArgumentError.new("unknown connection: <\"unknown\">")) do
+        GQTP::Client.new(:connection => "unknown")
+      end
+    end
+
+    private
+    def process_client(client)
+      header = GQTP::Header.parse(client.read(GQTP::Header.size))
+      @request_body = client.read(header.size)
+
+      response_header = GQTP::Header.new
+      response_header.size = @response_body.bytesize
+      client.write(response_header.pack)
+      client.write(@response_body)
+    end
+
+    class CloseTest < self
+      def test_sync
+        @response_body = "[]"
+        client = GQTP::Client.new(:address => @address, :port => @port)
+        assert_true(client.close)
+      end
+
+      def test_async
+        @response_body = "[]"
+        client = GQTP::Client.new(:address => @address, :port => @port)
+        closed = false
+        close_request = client.close do
+          closed = true
+        end
+        assert_false(closed)
+        close_request.wait
+        assert_true(closed)
+      end
+    end
   end
 end
