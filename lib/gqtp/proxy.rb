@@ -63,7 +63,7 @@ module GQTP
       begin
         require "gqtp/connection/#{@connection}"
       rescue LoadError
-        raise "unknown connection: <#{@connection.inspect}>"
+        raise ArgumentError, "unknown connection: <#{@connection.inspect}>"
       end
 
       require "gqtp/connection/#{@connection}"

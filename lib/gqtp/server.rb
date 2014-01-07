@@ -69,7 +69,7 @@ module GQTP
       begin
         require "gqtp/connection/#{connection}"
       rescue LoadError
-        raise "unknown connection: <#{connection.inspect}>"
+        raise ArgumentError, "unknown connection: <#{connection.inspect}>"
       end
 
       module_name = connection.to_s.capitalize
