@@ -58,15 +58,15 @@ module GQTP
       end
 
       class Client
-        attr_accessor :address, :port
+        attr_accessor :host, :port
         def initialize(options={})
           @options = options
-          @address = options[:address] || "127.0.0.1"
+          @host = options[:host] || "127.0.0.1"
           @port = options[:port] || 10043
           begin
-            @socket = TCPSocket.open(@address, @port)
+            @socket = TCPSocket.open(@host, @port)
           rescue SystemCallError
-            raise ConnectionError.new(@address, @port, $!)
+            raise ConnectionError.new(@host, @port, $!)
           end
           @io = IO.new(@socket)
         end
@@ -85,16 +85,16 @@ module GQTP
       end
 
       class Server
-        attr_accessor :address, :port
+        attr_accessor :host, :port
         def initialize(options={})
           @options = options
-          @address = options[:address] || "0.0.0.0"
+          @host = options[:host] || "0.0.0.0"
           @port = options[:port] || 10043
           @backlog = options[:backlog] || 128
         end
 
         def run
-          @server = TCPServer.new(@address, @port)
+          @server = TCPServer.new(@host, @port)
           @server.listen(@backlog)
           loop do
             client = @server.accept

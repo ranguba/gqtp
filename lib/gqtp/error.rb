@@ -21,14 +21,14 @@ module GQTP
   end
 
   class ConnectionError < Error
-    attr_reader :address
+    attr_reader :host
     attr_reader :port
     attr_reader :detail
-    def initialize(address, port, detail)
-      @address = address
+    def initialize(host, port, detail)
+      @host = host
       @port    = port
       @detail  = detail
-      super("Failed to connect to <#{@address}:#{@port}>: " +
+      super("Failed to connect to <#{@host}:#{@port}>: " +
               "#{@detail.message} (#{@detail.class})")
     end
   end

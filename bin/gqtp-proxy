@@ -22,27 +22,27 @@ require "ostruct"
 require "gqtp"
 
 options = OpenStruct.new
-options.listen_address = "0.0.0.0"
+options.listen_host = "0.0.0.0"
 options.listen_port = 10043
-options.upstream_address = nil
+options.upstream_host = nil
 options.upstream_port = 10043
 options.backend = :thread
 
 parser = OptionParser.new
-parser.on("--listen-address=ADDRESS",
-          "IP address or host name to listen",
-          "(#{options.listen_address})") do |address|
-  options.listen_address = address
+parser.on("--listen-host=HOST",
+          "IP host or host name to listen",
+          "(#{options.listen_host})") do |host|
+  options.listen_host = host
 end
 parser.on("--listen-port=PORT", Integer,
           "Port number to listen",
           "(#{options.listen_port})") do |port|
   options.listen_port = port
 end
-parser.on("--upstream-address=ADDRESS",
-          "IP address or host name of upstream",
-          "(#{options.upstream_address})") do |address|
-  options.upstream_address = address
+parser.on("--upstream-host=HOST",
+          "IP host or host name of upstream",
+          "(#{options.upstream_host})") do |host|
+  options.upstream_host = host
 end
 parser.on("--upstream-port=PORT", Integer,
           "Port number of upstream",
@@ -64,14 +64,14 @@ rescue OptionParser::ParseError
   exit(false)
 end
 
-if options.upstream_address.nil?
-  puts("--upstream-address is required.")
+if options.upstream_host.nil?
+  puts("--upstream-host is required.")
   exit(false)
 end
 
-proxy = GQTP::Proxy.new(:listen_address => options.listen_address,
+proxy = GQTP::Proxy.new(:listen_host => options.listen_host,
                         :listen_port => options.listen_port,
-                        :upstream_address => options.upstream_address,
+                        :upstream_host => options.upstream_host,
                         :upstream_port => options.upstream_port,
                         :connection => options.backend)
 proxy.run.wait

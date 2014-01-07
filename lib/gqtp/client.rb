@@ -21,10 +21,10 @@ require "gqtp/sequential-request"
 
 module GQTP
   class Client
-    attr_accessor :address, :port
+    attr_accessor :host, :port
     def initialize(options={})
       @options = options.dup
-      @options[:address] ||= "127.0.0.1"
+      @options[:host] ||= @options[:address] || "127.0.0.1"
       @options[:port] ||= 10043
       @connection = create_connection
     end

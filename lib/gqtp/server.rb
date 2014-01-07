@@ -20,10 +20,10 @@ require "gqtp/header"
 
 module GQTP
   class Server
-    attr_accessor :address, :port
+    attr_accessor :host, :port
     def initialize(options={})
       @options = options.dup
-      @options[:address] ||= "0.0.0.0"
+      @options[:host] ||= @options[:address] || "0.0.0.0"
       @options[:port] ||= 10043
       @on_request = nil
       @on_connect = nil
