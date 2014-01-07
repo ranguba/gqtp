@@ -21,6 +21,7 @@ require "socket"
 require "gqtp/client"
 
 class ClientTest < Test::Unit::TestCase
+  class RequestTest < self
   def setup
     @address = "127.0.0.1"
     @server = TCPServer.new(@address, 0)
@@ -96,5 +97,6 @@ class ClientTest < Test::Unit::TestCase
       close_request.wait
       assert_true(closed)
     end
+  end
   end
 end
