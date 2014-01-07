@@ -61,6 +61,12 @@ class ClientTest < Test::Unit::TestCase
     request.wait
   end
 
+  def test_unknown_connection
+    assert_raise(ArgumentError.new("unknown connection: <\"unknown\">")) do
+      GQTP::Client.new(:connection => "unknown")
+    end
+  end
+
   private
   def process_client(client)
     header = GQTP::Header.parse(client.read(GQTP::Header.size))
