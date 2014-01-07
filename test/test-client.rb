@@ -43,6 +43,18 @@ class ClientTest < Test::Unit::TestCase
       @thread.kill
     end
 
+    private
+    def process_client(client)
+      header = GQTP::Header.parse(client.read(GQTP::Header.size))
+      @request_body = client.read(header.size)
+
+      response_header = GQTP::Header.new
+      response_header.size = @response_body.bytesize
+      client.write(response_header.pack)
+      client.write(@response_body)
+    end
+
+    class SendTest < self
     def test_sync
       @response_body = "[false]"
       client = GQTP::Client.new(:address => @address, :port => @port)
@@ -61,22 +73,12 @@ class ClientTest < Test::Unit::TestCase
       end
       request.wait
     end
+    end
 
     def test_unknown_connection
       assert_raise(ArgumentError.new("unknown connection: <\"unknown\">")) do
         GQTP::Client.new(:connection => "unknown")
       end
-    end
-
-    private
-    def process_client(client)
-      header = GQTP::Header.parse(client.read(GQTP::Header.size))
-      @request_body = client.read(header.size)
-
-      response_header = GQTP::Header.new
-      response_header.size = @response_body.bytesize
-      client.write(response_header.pack)
-      client.write(@response_body)
     end
 
     class CloseTest < self
