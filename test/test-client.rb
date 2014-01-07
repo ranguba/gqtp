@@ -55,24 +55,24 @@ class ClientTest < Test::Unit::TestCase
     end
 
     class SendTest < self
-    def test_sync
-      @response_body = "[false]"
-      client = GQTP::Client.new(:address => @address, :port => @port)
-      client.send("status")
-      header, body = client.read
-      assert_equal(["status",      @response_body.bytesize, @response_body],
-                   [@request_body, header.size,             body])
-    end
-
-    def test_async
-      @response_body = "[false]"
-      client = GQTP::Client.new(:address => @address, :port => @port)
-      request = client.send("status") do |header, body|
+      def test_sync
+        @response_body = "[false]"
+        client = GQTP::Client.new(:address => @address, :port => @port)
+        client.send("status")
+        header, body = client.read
         assert_equal(["status",      @response_body.bytesize, @response_body],
                      [@request_body, header.size,             body])
       end
-      request.wait
-    end
+
+      def test_async
+        @response_body = "[false]"
+        client = GQTP::Client.new(:address => @address, :port => @port)
+        request = client.send("status") do |header, body|
+          assert_equal(["status",      @response_body.bytesize, @response_body],
+                       [@request_body, header.size,             body])
+        end
+        request.wait
+      end
     end
 
     def test_unknown_connection
