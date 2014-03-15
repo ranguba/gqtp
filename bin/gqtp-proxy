@@ -75,11 +75,14 @@ proxy = GQTP::Proxy.new(:listen_host => options.listen_host,
                         :upstream_host => options.upstream_host,
                         :upstream_port => options.upstream_port,
                         :backend => options.backend)
-if options.backend == :eventmachine
-  require "eventmachine"
-  EventMachine.run do
-    proxy.run
+begin
+  if options.backend == :eventmachine
+    require "eventmachine"
+    EventMachine.run do
+      proxy.run
+    end
+  else
+    proxy.run.wait
   end
-else
-  proxy.run.wait
+rescue Interrupt
 end
