@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2012-2013  Kouhei Sutou <kou@clear-code.com>
+# Copyright (C) 2012-2014  Kouhei Sutou <kou@clear-code.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -30,21 +30,22 @@ module GQTP
       @upstream_host = @options[:upstream_host] || @options[:upstream_address]
       @upstream_host ||= "127.0.0.1"
       @upstream_port = @options[:upstream_port] || 10043
-      @connection = @options[:connection] || :thread
+      # :connection is just for backward compatibility.
+      @backend = @options[:backend] || @options[:connection] || :thread
       @server = Server.new(:host => @listen_host,
                            :port => @listen_port,
-                           :connection => @connection)
+                           :backend => @backend)
     end
 
     def run
       @server.on_connect do |client|
-        create_connection
+        create_backend
       end
-      @server.on_request do |request, client, connection|
-        connection.write(request.header.pack, request.body) do
-          connection.read(Header.size) do |header|
+      @server.on_request do |request, client, backend|
+        backend.write(request.header.pack, request.body) do
+          backend.read(Header.size) do |header|
             response_header = Header.parse(header)
-            connection.read(response_header.size) do |body|
+            backend.read(response_header.size) do |body|
               client.write(header, body) do
               end
             end
@@ -59,18 +60,18 @@ module GQTP
     end
 
     private
-    def create_connection
+    def create_backend
       begin
-        require "gqtp/connection/#{@connection}"
+        require "gqtp/backend/#{@backend}"
       rescue LoadError
-        raise ArgumentError, "unknown connection: <#{@connection.inspect}>"
+        raise ArgumentError, "unknown backend: <#{@backend.inspect}>: #{$!}"
       end
 
-      require "gqtp/connection/#{@connection}"
-      module_name = @connection.to_s.capitalize
-      connection_module = GQTP::Connection::const_get(module_name)
-      connection_module::Client.new(:host => @upstream_host,
-                                    :port => @upstream_port)
+      require "gqtp/backend/#{@backend}"
+      module_name = @backend.to_s.capitalize
+      backend_module = GQTP::Backend::const_get(module_name)
+      backend_module::Client.new(:host => @upstream_host,
+                                 :port => @upstream_port)
     end
   end
 end

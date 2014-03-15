@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2012-2013  Kouhei Sutou <kou@clear-code.com>
+# Copyright (C) 2012-2014  Kouhei Sutou <kou@clear-code.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -30,14 +30,14 @@ module GQTP
     end
 
     def run
-      @connection = create_connection
-      @connection.run do |client|
+      @backend = create_backend
+      @backend.run do |client|
         process_request(client, on_connect(client))
       end
     end
 
     def shutdown
-      @connection.shutdown
+      @backend.shutdown
     end
 
     def on_connect(*arguments, &block)
@@ -63,18 +63,19 @@ module GQTP
     end
 
     private
-    def create_connection
-      connection = @options[:connection] || :thread
+    def create_backend
+      # :connection is just for backward compatibility.
+      backend = @options[:backend] || @options[:connection] || :thread
 
       begin
-        require "gqtp/connection/#{connection}"
+        require "gqtp/backend/#{backend}"
       rescue LoadError
-        raise ArgumentError, "unknown connection: <#{connection.inspect}>"
+        raise ArgumentError, "unknown backend: <#{backend.inspect}>: #{$!}"
       end
 
-      module_name = connection.to_s.capitalize
-      connection_module = GQTP::Connection::const_get(module_name)
-      connection_module::Server.new(@options)
+      module_name = backend.to_s.capitalize
+      backend_module = GQTP::Backend::const_get(module_name)
+      backend_module::Server.new(@options)
     end
 
     def process_request(client, connect_info)
