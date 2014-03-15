@@ -26,7 +26,7 @@ module GQTP
       @options = options.dup
       @options[:host] ||= @options[:address] || "127.0.0.1"
       @options[:port] ||= 10043
-      @connection = create_connection
+      @backend = create_backend
     end
 
     def send(body, options={}, &block)
@@ -35,13 +35,13 @@ module GQTP
 
       if block_given?
         sequential_request = SequentialRequest.new
-        write_request = @connection.write(header.pack, body) do
+        write_request = @backend.write(header.pack, body) do
           sequential_request << read(&block)
         end
         sequential_request << write_request
         sequential_request
       else
-        @connection.write(header.pack, body)
+        @backend.write(header.pack, body)
       end
     end
 
@@ -51,9 +51,9 @@ module GQTP
       response_body = nil
 
       sequential_request = SequentialRequest.new
-      read_header_request = @connection.read(Header.size) do |header|
+      read_header_request = @backend.read(Header.size) do |header|
         parser << header
-        read_body_request = @connection.read(parser.header.size) do |body|
+        read_body_request = @backend.read(parser.header.size) do |body|
           response_body = body
           yield(parser.header, response_body) if block_given?
         end
@@ -88,7 +88,7 @@ module GQTP
       sync = !block_given?
       sequential_request = SequentialRequest.new
       quit_request = send("quit", :header => header_for_close) do
-        @connection.close
+        @backend.close
         yield if block_given?
       end
       sequential_request << quit_request
@@ -102,18 +102,19 @@ module GQTP
     end
 
     private
-    def create_connection
-      connection = @options[:connection] || :thread
+    def create_backend
+      # :connection is just for backward compatibility.
+      backend = @options[:backend] || @options[:connection] || :thread
 
       begin
-        require "gqtp/connection/#{connection}"
+        require "gqtp/backend/#{backend}"
       rescue LoadError
-        raise ArgumentError, "unknown connection: <#{connection.inspect}>"
+        raise ArgumentError, "unknown backend: <#{backend.inspect}>: #{$!}"
       end
 
-      module_name = connection.to_s.capitalize
-      connection_module = GQTP::Connection.const_get(module_name)
-      connection_module::Client.new(@options)
+      module_name = backend.to_s.capitalize
+      backend_module = GQTP::Backend.const_get(module_name)
+      backend_module::Client.new(@options)
     end
 
     def header_for_close

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2012-2013  Kouhei Sutou <kou@clear-code.com>
+# Copyright (C) 2012-2014  Kouhei Sutou <kou@clear-code.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -21,10 +21,12 @@ require "socket"
 require "gqtp/client"
 
 class ClientTest < Test::Unit::TestCase
-  class CreateConnectionTest < self
+  class CreateBackendTest < self
     def test_unknown
-      assert_raise(ArgumentError.new("unknown connection: <\"unknown\">")) do
-        GQTP::Client.new(:connection => "unknown")
+      message = "unknown backend: <\"unknown\">: " +
+        "cannot load such file -- gqtp/backend/unknown"
+      assert_raise(ArgumentError.new(message)) do
+        GQTP::Client.new(:backend => "unknown")
       end
     end
 
