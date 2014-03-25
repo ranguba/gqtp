@@ -1,5 +1,23 @@
 # News
 
+## 1.0.6: 2014-03-25
+
+### Improvements
+
+  * Added EventMachine backend.
+
+### Changes
+
+  * Changed the default port number to 10043 from 10041 because GQTP
+    server packages use 10043.
+  * Changed error class when unknown connection type is specified to
+    `GQTP::Client.new` to `ArgumentError` from `RuntimeError`.
+  * Wrapped internal error to `GQTP::ConnectionError`.
+  * Changed `:address` keyword to `:host` in `GQTP::Client.new`.
+    `:address` is still usable but it is deprecated.
+  * Changed connection backend module/directory name to `backend` from
+    `connection`.
+
 ## 1.0.5: 2013-09-18
 
 ### Improvements
