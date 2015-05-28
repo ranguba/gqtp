@@ -53,7 +53,7 @@ for high concurrency use.
 
 ## Dependencies
 
-* Ruby 1.9.3
+* Ruby
 
 ## Mailing list
 
