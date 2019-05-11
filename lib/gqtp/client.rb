@@ -27,11 +27,19 @@ module GQTP
       @options[:host] ||= @options[:address] || "127.0.0.1"
       @options[:port] ||= 10043
       @backend = create_backend
+      @close_requesting = false
     end
 
     def send(body, options={}, &block)
       header = options[:header] || Header.new
       header.size = body.bytesize
+
+      case body
+      when /\A(?:shutdown|quit)(?:\z|\s)/
+        @close_requesting = true
+      when /\A\/d\/(?:shutdown|quit)(?:\z|\?)/
+        @close_requesting = true
+      end
 
       if block_given?
         sequential_request = SequentialRequest.new
@@ -55,6 +63,10 @@ module GQTP
         parser << header
         read_body_request = @backend.read(parser.header.size) do |body|
           response_body = body
+          if @close_requesting
+            @backend.close
+            @backend = nil
+          end
           yield(parser.header, response_body) if block_given?
         end
         sequential_request << read_body_request
@@ -87,11 +99,12 @@ module GQTP
     def close
       sync = !block_given?
       sequential_request = SequentialRequest.new
-      quit_request = send("quit", :header => header_for_close) do
-        @backend.close
-        yield if block_given?
+      if @backend
+        quit_request = send("quit", :header => header_for_close) do
+          yield if block_given?
+        end
+        sequential_request << quit_request
       end
-      sequential_request << quit_request
 
       if sync
         sequential_request.wait
