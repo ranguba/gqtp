@@ -1,5 +1,12 @@
 # News
 
+## 1.0.7: 2019-05-11
+
+### Improvements
+
+  * Added support for `Groonga::Client#close` after sending `shutdown`
+    or `close`.
+
 ## 1.0.6: 2014-03-25
 
 ### Improvements
