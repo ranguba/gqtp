@@ -1,5 +1,11 @@
 # News
 
+## 1.0.8: 2024-12-24
+
+### Improvements
+
+  * Suppressed warnings with Ruby 3.4.
+
 ## 1.0.7: 2019-05-11
 
 ### Improvements
