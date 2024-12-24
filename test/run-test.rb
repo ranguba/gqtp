@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
-# -*- coding: utf-8 -*-
 #
-# Copyright (C) 2012-2013  Kouhei Sutou <kou@clear-code.com>
+# Copyright (C) 2012-2024  Sutou Kouhei <kou@clear-code.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -26,7 +25,6 @@ test_dir = File.join(base_dir, "test")
 $LOAD_PATH.unshift(lib_dir)
 
 require "test-unit"
-require "test/unit/notify"
 
 Thread.abort_on_exception = true
 
