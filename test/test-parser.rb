@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2012  Kouhei Sutou <kou@clear-code.com>
+# Copyright (C) 2012-2024  Sutou Kouhei <kou@clear-code.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -38,7 +36,7 @@ class ParserTest < Test::Unit::TestCase
   end
 
   def test_on_body
-    received_data = ""
+    received_data = +""
     @parser.on_body do |chunk|
       received_data << chunk
     end
